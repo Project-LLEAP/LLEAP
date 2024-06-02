@@ -7,7 +7,7 @@
 
     <!-- Import control_xacro -->
     <xacro:include filename="lleap_exo.ros2_control.xacro" />
-
+    <xacro:include filename="transmissions.xacro" />
 
     <xacro:lleap_exo_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
 

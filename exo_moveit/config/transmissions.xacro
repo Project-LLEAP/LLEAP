@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="add_transmission" params="prefix joint_name actuator_name hardware_interface">
+    <transmission name="${prefix}_${joint_name}_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_${joint_name}">
+        <hardwareInterface>${hardware_interface}</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_${actuator_name}">
+        <hardwareInterface>${hardware_interface}</hardwareInterface>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <!-- Define transmissions for each joint -->
+  <xacro:add_transmission prefix="left" joint_name="hip_revolute_joint" actuator_name="motor_left_hip" hardware_interface="hardware_interface/PositionJointInterface"/>
+  <xacro:add_transmission prefix="left" joint_name="knee_revolute_joint" actuator_name="motor_left_knee" hardware_interface="hardware_interface/PositionJointInterface"/>
+  <xacro:add_transmission prefix="left" joint_name="ankle_revolute_joint" actuator_name="motor_left_ankle" hardware_interface="hardware_interface/PositionJointInterface"/>
+  <xacro:add_transmission prefix="right" joint_name="hip_revolute_joint" actuator_name="motor_right_hip" hardware_interface="hardware_interface/PositionJointInterface"/>
+  <xacro:add_transmission prefix="right" joint_name="knee_revolute_joint" actuator_name="motor_right_knee" hardware_interface="hardware_interface/PositionJointInterface"/>
+  <xacro:add_transmission prefix="right" joint_name="ankle_revolute_joint" actuator_name="motor_right_ankle" hardware_interface="hardware_interface/PositionJointInterface"/>
+
+</robot>

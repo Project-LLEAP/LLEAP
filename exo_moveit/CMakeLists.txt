@@ -9,6 +9,8 @@ ament_python_install_package(${PROJECT_NAME})
 install(
   PROGRAMS
   ${PROJECT_NAME}/logjointstates.py
+  ${PROJECT_NAME}/upright_control.py
+  ${PROJECT_NAME}/control_to_gazebo.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

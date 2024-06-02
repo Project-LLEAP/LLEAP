@@ -1,36 +1,40 @@
 cmake_minimum_required(VERSION 3.8)
-project(exo_control)
+project(exo_mujoco)
+
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ros2_control REQUIRED)
-find_package(rclpy REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(controller_manager REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-# install c++ executables
-include_directories(include)
-#add_executable(hw_interface src/exo_hw_interface.cpp)
-add_executable(ros2_control src/ros2_control_node.cpp)
-ament_target_dependencies(ros2_control rclcpp controller_manager)
+# Set MuJoCo paths
+set(MUJOCO_PATH "$ENV{MUJOCO_PY_MUJOCO_PATH}")
 
-install(TARGETS
-  #hw_interface
-  ros2_control
-  DESTINATION lib/${PORJECT_NAME})
-
-ament_python_install_package(${PROJECT_NAME})
-
-install(PROGRAMS
-  ${PROJECT_NAME}/bluetoothesp32.py
-  ${PROJECT_NAME}/bluetoothscanner.py
-  ${PROJECT_NAME}/serialesp32.py
-  DESTINATION lib/${PROJECT_NAME}
+include_directories(
+  include
+  ${MUJOCO_PATH}/include
 )
+
+link_directories(
+  ${MUJOCO_PATH}/bin
+)
+
+add_executable(mujoco_simulator src/mujoco_simulator.cpp)
+ament_target_dependencies(mujoco_simulator rclcpp sensor_msgs geometry_msgs)
+
+# Link against the MuJoCo library
+target_link_libraries(mujoco_simulator ${MUJOCO_PATH}/lib/libmujoco.so.3.1.5)
+
+install(TARGETS mujoco_simulator
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch 
 DESTINATION share/${PROJECT_NAME}/)

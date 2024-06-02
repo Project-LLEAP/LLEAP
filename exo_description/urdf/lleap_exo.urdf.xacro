@@ -3,7 +3,6 @@
      Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 
-
 <robot name="exo"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -30,22 +29,23 @@
   <xacro:property name="joint2" value="knee" />   <!-- thigh to shank -->
   <xacro:property name="joint3" value="ankle" />  <!-- shank to foot -->
 
-
   <!-- Used for fixing robot to Gazebo 'base_link' -->
   <!-- https://classic.gazebosim.org/tutorials?tut=ros_urdf&cat=connect_ros
         "Rigidly Fixing A Model to the World" section
       "If you would like your URDF model to be permanently attached to 
         the world frame (the ground plane), you must create a "world" 
         link and a joint that fixes it to the base of your model." -->
+ <!-- 
   <link name="world"/>
-
+-->
   <!-- secure (fix) model in Gazebo: world <> link0 = fixed base_link = torso -->
+  <!--
   <joint name="global_fixed" type="fixed">
     <origin xyz="0 0 1" rpy="0 0 ${pi}" />
     <parent link="world"/>
     <child link="base_link"/>
   </joint>
-
+-->
 
   <!-- torso: base for the model; attached to world in gazebo if whole model fixed -->
   <link name="base_link">
@@ -59,7 +59,6 @@
       <material name="red"/>
     </visual>
   </link>
-
 
   <!-- xacro macro for a leg (including Gazebo transmission elements). 
         'prefix' should designate the right and left legs.
@@ -116,6 +115,7 @@
       <axis xyz="0 0 1" />
       <!-- Positional joint limits partially based on Tamar's msts (upper lim here). -->
       <limit lower="${hip_lower_radians}" upper="${hip_upper_radians}" effort="700" velocity="5" />
+      <dynamics damping="1.0" friction="0.05" spring_stiffness="250" spring_reference="0"/>
     </joint>
 
     <!-- link1 should be the thigh (joint1 to joint2).
@@ -153,6 +153,7 @@
       <axis xyz="0 0 1" />
       <!-- Positional joint limits partially based on Tamar's msts (lower lim here). -->
       <limit lower="${knee_lower_radians}" upper="${knee_upper_radians}" effort="250" velocity="1.308" />
+      <dynamics damping="1.0" friction="0.05" spring_stiffness="250" spring_reference="0"/>
     </joint>
 
     <!-- link2 should be the shank (joint2 to joint3).
@@ -192,13 +193,12 @@
       <axis xyz="0 0 1" />
       <!-- Positional joint limits NOT based on Tamar's msts, but normal ranges instead. -->
       <limit lower="${ankle_lower_radians}" upper="${ankle_upper_radians}" effort="250" velocity="1.308" />
+      <dynamics damping="1.0" friction="0.05" spring_stiffness="250" spring_reference="0"/>
     </joint>
 
     <!-- link3 should be the foot. -->
     <link name="${prefix}_${link3}">
       <inertial>
-        <!-- TODO: probably need to change this interial element -->
-        <!-- not quite sure what this is <origin xyz="-0.210873385399549 -0.0276710830621445 -0.140982468689507" rpy="0 0 0" /> -->
         <mass value="1.10275445439595" />
         <inertia ixx="0.00199044634689737" ixy="-7.54331572697175E-06" ixz="-0.00260077424938593" iyy="0.00581565190920448" iyz="-4.96554466328964E-06" izz="0.00412555905043524" />
       </inertial>
@@ -244,21 +244,3 @@
   </gazebo>
   -->
 </robot>
-
-
-<!--
-  TODO: consider reorganizing a bit to be more modularly structured like the UR robot arm URDFs.
-  Don't need to be as modular bc only one robot (i.e., not ur3, ur5, etc) and less complex so far,
-    but good to keep some things in mind as reference -> potential future changes to our model.
-  - transmissions in separate file; macro for one leg's transmissions, prefix (usual) and 
-      hw_interface as marco params
-  - see the xacro:insert_clock use in the _robot. files
-    https://answers.ros.org/question/358472/xacro-insert_block-parameter/
-    any use for us?
-  - also see creation and use of the xacro macro cylinder intertial.
-    if we build our simple geom model as cylinders (looking like the UR arms tbh), can use something 
-      similar to calc/create inertial blocks?
-  - overall, just note which components (basic links and joints, transmissions, other gazebo
-    components like intertials and plugins, macros, properties, etc)
-  https://github.com/ros-industrial/universal_robot/blob/melodic-devel/ur_description/urdf/ur3.urdf.xacro
--->

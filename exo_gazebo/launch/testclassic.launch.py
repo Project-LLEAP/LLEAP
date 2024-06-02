@@ -10,7 +10,7 @@ import xacro
  
 # Specify the name of the package and path to xacro file within the package
 description_pkg_name = 'exo_description'
-urdf_subpath = 'urdf/lleap_exo.urdf.xacro'
+urdf_subpath = 'urdf/testclassic.urdf.xacro'
 
 def generate_launch_description():
     # Gazebo will output all messages, including debug messages from plugins.
