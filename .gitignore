@@ -6,3 +6,6 @@ logs/
 
 # VSCode files
 .vscode
+
+# PlatformIO files
+.pio/
