@@ -1,52 +1,56 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 
-char[] node_name = "exo_control";
+constexpr char NODE_NAME[] = "exo_control";
+
 int main(int argc, char * argv[])
 {
   // Initialize ROS and create the Node
   rclcpp::init(argc, argv);
   auto const node = std::make_shared<rclcpp::Node>(
-    node_name,
+    NODE_NAME,
     rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)
   );
 
   // Create a ROS logger
-  auto const logger = rclcpp::get_logger(node_name);
+  auto const logger = rclcpp::get_logger(NODE_NAME);
 
   // Next step goes here
   // Create the MoveIt MoveGroup Interface
 using moveit::planning_interface::MoveGroupInterface;
 auto move_group_interface = MoveGroupInterface(node, "manipulator");
 
-// Set a target Pose
-auto const target_pose = []{
-  geometry_msgs::msg::Pose msg;
-  msg.orientation.w = 1.0;
-  msg.position.x = 0.28;
-  msg.position.y = -0.2;
-  msg.position.z = 0.5;
-  return msg;
-}();
-move_group_interface.setPoseTarget(target_pose);
+geometry_msgs::msg::Pose target_pose;
+  target_pose.orientation.w = 1.0;
+  target_pose.position.x    = 0.28;
+  target_pose.position.y    = -0.20;
+  target_pose.position.z    = 0.50;
+  move_group_interface.setPoseTarget(target_pose);
 
-// Create a plan to that target pose
-auto const [success, plan] = [&move_group_interface]{
-  moveit::planning_interface::MoveGroupInterface::Plan msg;
-  auto const ok = static_cast<bool>(move_group_interface.plan(msg));
-  return std::make_pair(ok, msg);
-}();
+  MoveGroupInterface::Plan my_plan;
+  bool success =
+      (move_group_interface.plan(my_plan) ==
+       moveit::core::MoveItErrorCode::SUCCESS);
 
-// Execute the plan
-if(success) {
-  move_group_interface.execute(plan);
-} else {
-  RCLCPP_ERROR(logger, "Planning failed!");
-}
+  if (!success)
+  {
+    RCLCPP_ERROR(logger, "Motion planning failed.");
+    rclcpp::shutdown();
+    return 1;
+  }
 
-  // Shutdown ROS
+  if (move_group_interface.execute(my_plan) !=
+      moveit::core::MoveItErrorCode::SUCCESS)
+  {
+    RCLCPP_ERROR(logger, "Execution failed.");
+    rclcpp::shutdown();
+    return 2;
+  }
+
+  RCLCPP_INFO(logger, "Motion completed successfully.");
   rclcpp::shutdown();
   return 0;
 } 
