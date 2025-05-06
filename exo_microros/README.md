@@ -4,18 +4,38 @@ This is a ROS2 package for the ESP32-C3 microcontroller. It is used to control t
 
 ## Dependencies
 
-- [PlatformIO](https://platformio.org/)
-- [ESP32-Development](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/hw-reference/esp32c3/user-guide-sdk-environment.html)
+I haven't tested this on windows or mac. It's recommended to use WSL or a linux machine.
 
-I'm using WSL in order to bind the esp32 you must follow these steps: [WSL USB Device Setup](https://learn.microsoft.com/en-us/windows/wsl/connect-usb#attach-a-usb-device)
+Install either [PlatformIO](https://platformio.org/) vscode IDE or CLI tool. 
 
-I followed these tutorials in order to get it working. 
+## Installation
 
-[Micro ROS on RTOS](https://micro.ros.org/docs/tutorials/core/first_application_rtos/freertos/) use freeRTOS, fallow installing ros2 and the micro-ROS build system. After you shouldn't have to create the firmware. Instead you will just use the [Micro ROS PlatformIO](https://github.com/micro-ROS/micro_ros_platformio/tree/main) template. I have set it up so install platformio and upload the main to the esp32. After you should continue the microros tutorial at the agent part. 
+Upload the current package to the esp32-c3 by clicking upload or running 
+
+```bash
+platformio run -t upload
+```
+
+Next we need to create an agent on your machine that will communicate with the microros program on the esp32. 
+
+
+## WSL Extra Steps
+
+To bind the esp32 you must follow these steps: [WSL USB Device Setup](https://learn.microsoft.com/en-us/windows/wsl/connect-usb#attach-a-usb-device)
+
+[Micro ROS on freeRTOS](https://micro.ros.org/docs/tutorials/core/first_application_rtos/freertos/), follow the instructions to install ros2 and the micro-ROS build system. After you should continue the microros tutorial at the **Creating the micro-ROS agent** section. When running the micro-ros agent make sure to run `ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 --baud 921600`.
 
 ## Issues
 
-- This issue should only be on esp32CAM. On WSL when binding the [esp32 to wsl](https://learn.microsoft.com/en-us/windows/wsl/connect-usb) it pulls the DTR/RTS handshake lines low. This auto resets holds the esp32 in the ROM bootloader. Must use windows as a com-bridge, it will be in /dev/ttyS(n-1) n is the COM port of the esp32 in device manager under Ports (COM & LPT). 
+- ESP32CAM on WSL: DTR/RTS lines cause auto-reset into bootloader. Attempted to fix but instead uses new esp32-c3
+
+## Docker
+
+You can use docker to create the microros agent. I have not tested this.
+
+```bash
+docker run -it --net=host -v /dev:/dev --privileged ros:humble
+```
 
 
 
