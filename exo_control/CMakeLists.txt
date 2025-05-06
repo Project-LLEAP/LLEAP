@@ -11,6 +11,7 @@ find_package(ament_cmake_python REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 
+ament_python_install_package(${PROJECT_NAME})
 
 add_executable(exo_control src/ros2_moveit.cpp)
 target_include_directories(exo_control PUBLIC
@@ -23,8 +24,11 @@ ament_target_dependencies(
   "rclcpp"
 )
 
-install(TARGETS exo_control
-  DESTINATION lib/${PROJECT_NAME})
+install(
+  PROGRAMS
+  ${PROJECT_NAME}/virtual_joy.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 

@@ -36,6 +36,10 @@ For serial communication with USB connected hardware devices:
 
 - [`pyserial`](https://pypi.org/project/pyserial/)
 
+For the on-screen joystick:
+
+- [`pygame`](https://www.pygame.org/news)
+
 ## Local Installation
 
 ### Create and configure a workspace
