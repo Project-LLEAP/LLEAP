@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <stdint.h>
 
 struct ImuFrame {
@@ -17,5 +18,7 @@ struct SharedState {
   ImuFrame imu{};
   volatile uint32_t last_cmd_ms{0};
   uint32_t last_joy_ms{0};
-  volatile bool estop{false};
+  std::atomic<bool> estop{true};
 };
+
+extern portMUX_TYPE g_shared_mux;

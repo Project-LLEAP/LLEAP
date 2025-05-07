@@ -31,7 +31,7 @@ bool ImuBNO085::poll()
       frame_.calib   = v.status & 0x03;
       break;
 
-    case SH2_GYROSCOPE_UNCALIBRATED:
+    case SH2_GYROSCOPE_CALIBRATED:
       frame_.gyro[0] = v.un.gyroscope.x;
       frame_.gyro[1] = v.un.gyroscope.y;
       frame_.gyro[2] = v.un.gyroscope.z;

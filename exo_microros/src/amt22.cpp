@@ -3,7 +3,11 @@
 SPISettings encSettings(10000000, MSBFIRST, SPI_MODE1);
 portMUX_TYPE AMT22::mux_ = portMUX_INITIALIZER_UNLOCKED;
 
-AMT22::AMT22(uint8_t cs) : cs_pin_(cs), last_us_(micros()) {
+AMT22::AMT22(uint8_t cs) : cs_pin_(cs), last_raw_(0) {}
+
+void AMT22::begin()
+{
+  last_us_ = micros();
   pinMode(cs_pin_, OUTPUT);
   digitalWrite(cs_pin_, HIGH);
 }

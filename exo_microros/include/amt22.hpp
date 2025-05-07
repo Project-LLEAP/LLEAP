@@ -5,6 +5,8 @@
 class AMT22 {
 public:
   explicit AMT22(uint8_t cs_pin);
+
+  void begin();
   
   bool poll();
 
