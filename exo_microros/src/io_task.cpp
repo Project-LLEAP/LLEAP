@@ -38,16 +38,18 @@ void io_task(void *param) {
 
     float hip_cmd, knee_cmd;
     uint32_t t_cmd;
+    bool estop, enable;
     portENTER_CRITICAL(&g_shared_mux);
       hip_cmd  = SHARED.cmd_vel[0];
       knee_cmd = SHARED.cmd_vel[1];
       t_cmd    = SHARED.last_cmd_ms;
+      estop    = SHARED.estop;
+      enable   = SHARED.enable;
+      if (millis() - t_cmd > WDOG_MS) SHARED.estop = true;
     portEXIT_CRITICAL(&g_shared_mux);
 
-    if (millis() - t_cmd > WDOG_MS) SHARED.estop = true;
-
     // actuators 
-    if (SHARED.estop)
+    if (estop || !enable)
     {
       motorHip.coast();
       motorKnee.coast();

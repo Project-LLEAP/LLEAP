@@ -18,7 +18,8 @@ struct SharedState {
   ImuFrame imu{};
   volatile uint32_t last_cmd_ms{0};
   uint32_t last_joy_ms{0};
-  std::atomic<bool> estop{true};
+  std::atomic<bool> enable{false};
+  std::atomic<bool> estop{false};
 };
 
 extern portMUX_TYPE g_shared_mux;

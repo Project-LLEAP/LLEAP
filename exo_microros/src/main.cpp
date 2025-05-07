@@ -21,16 +21,18 @@
 
 SharedState SHARED;
 
-static rcl_publisher_t  pub_joint, pub_imu, pub_estop, pub_calib;
-static rcl_subscription_t sub_cmd, sub_estop;
+static rcl_publisher_t  pub_joint, pub_imu, pub_estop, pub_calib, pub_enable;
+static rcl_subscription_t sub_cmd, sub_estop, sub_enable;
 static rclc_executor_t   executor;
 
 static sensor_msgs__msg__JointState js_msg;
 static sensor_msgs__msg__Imu       imu_msg;
 static std_msgs__msg__Bool         estop_msg;
 static std_msgs__msg__UInt8        calib_msg;
+static std_msgs__msg__Bool         enable_msg;
 static sensor_msgs__msg__JointState * cmd_in_msg = nullptr;
 static std_msgs__msg__Bool         estop_in_msg;
+static std_msgs__msg__Bool         enable_in_msg;
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
@@ -39,6 +41,20 @@ static std_msgs__msg__Bool         estop_in_msg;
 [[noreturn]] void error_loop() {
   while(1) {
     delay(100);
+  }
+}
+
+void enable_cb(const void * msg_in)
+{
+  const auto * msg = static_cast<const std_msgs__msg__Bool*>(msg_in);
+  
+  if (!msg->data) {
+    // bump watchdog so it doesn't time out when disabled
+    portENTER_CRITICAL_ISR(&g_shared_mux);
+      SHARED.last_cmd_ms = millis();
+    portEXIT_CRITICAL_ISR(&g_shared_mux);
+    // sets estop to true
+    SHARED.enable.store(msg->data, std::memory_order_relaxed);
   }
 }
 
@@ -95,6 +111,10 @@ void setup() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
     "/estop"));
   RCCHECK(rclc_publisher_init_default(
+    &pub_enable, &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/enable"));
+  RCCHECK(rclc_publisher_init_default(
     &pub_calib, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, UInt8),
     "/imu/calib"));
@@ -108,13 +128,20 @@ void setup() {
     &sub_estop, &node,
     ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
     "/estop"));
+  RCCHECK(rclc_subscription_init_default(
+    &sub_enable, &node,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Bool),
+    "/enable"));
 
   // create executor
-  RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
+  RCCHECK(rclc_executor_init(&executor, &support.context, 3, &allocator));
   cmd_in_msg = sensor_msgs__msg__JointState__create();   // heap once
   RCCHECK(rclc_executor_add_subscription(&executor, &sub_cmd, cmd_in_msg, &cmd_cb, ON_NEW_DATA));
   std_msgs__msg__Bool__init(&estop_in_msg);
   RCCHECK(rclc_executor_add_subscription(&executor, &sub_estop, &estop_in_msg, &estop_cb, ON_NEW_DATA));
+  std_msgs__msg__Bool__init(&enable_in_msg);
+  RCCHECK(rclc_executor_add_subscription(&executor, &sub_enable, &enable_in_msg, &enable_cb, ON_NEW_DATA));
+
   sensor_msgs__msg__JointState__init(&js_msg);
   rosidl_runtime_c__double__Sequence__init(&js_msg.position, 2);
   rosidl_runtime_c__double__Sequence__init(&js_msg.velocity, 2);
@@ -131,7 +158,7 @@ void loop() {
   // read shared state
   float  pos[2], vel[2];
   ImuFrame imu_local;
-  bool   estop_local;
+  bool   estop_local, enable_local;
   uint8_t calib_local;
 
   portENTER_CRITICAL(&g_shared_mux);
@@ -141,6 +168,7 @@ void loop() {
     vel[1]   = SHARED.enc_vel[1];
     imu_local = SHARED.imu;           // struct copy (64 B)
     estop_local  = SHARED.estop.load();
+    enable_local = SHARED.enable.load();
     calib_local  = SHARED.imu.calib;
   portEXIT_CRITICAL(&g_shared_mux);
 
@@ -154,7 +182,7 @@ void loop() {
   js_msg.position.data[1] = pos[1];
   js_msg.velocity.data[0] = vel[0];
   js_msg.velocity.data[1] = vel[1];
-  RCSOFT(rcl_publish(&pub_joint, &js_msg, nullptr));
+  RCSOFTCHECK(rcl_publish(&pub_joint, &js_msg, nullptr));
 
   // imu msg
   imu_msg.header = js_msg.header; 
@@ -171,13 +199,15 @@ void loop() {
   imu_msg.linear_acceleration.y = imu_local.accel[1];
   imu_msg.linear_acceleration.z = imu_local.accel[2];
 
-  RCSOFT(rcl_publish(&pub_imu, &imu_msg, nullptr));
+  RCSOFTCHECK(rcl_publish(&pub_imu, &imu_msg, nullptr));
 
-  // estop & calib msgs
+  // estop, enable, & calib msgs
   estop_msg.data = estop_local;
+  enable_msg.data = enable_local;
   calib_msg.data = calib_local;
-  RCSOFT(rcl_publish(&pub_estop, &estop_msg, nullptr));
-  RCSOFT(rcl_publish(&pub_calib, &calib_msg, nullptr));
+  RCSOFTCHECK(rcl_publish(&pub_estop, &estop_msg, nullptr));
+  RCSOFTCHECK(rcl_publish(&pub_enable, &enable_msg, nullptr));
+  RCSOFTCHECK(rcl_publish(&pub_calib, &calib_msg, nullptr));
 
   // spin executor (non-blocking)
   rclc_executor_spin_some(&executor, 0);
