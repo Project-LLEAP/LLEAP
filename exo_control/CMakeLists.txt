@@ -10,27 +10,37 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(xacro REQUIRED)
+find_package(hardware_interface REQUIRED)
+find_package(trajectory_msgs REQUIRED)
 
-ament_python_install_package(${PROJECT_NAME})
+add_library(exo_hw_interface SHARED
+  src/exo_hw_interface.cpp
+)
 
-add_executable(exo_control src/ros2_moveit.cpp)
-target_include_directories(exo_control PUBLIC
+target_include_directories(exo_hw_interface PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_compile_features(exo_control PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(exo_hw_interface PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(
-  exo_control
+  exo_hw_interface
   "moveit_ros_planning_interface"
   "rclcpp"
+  "trajectory_msgs"
+  "hardware_interface"
+  "pluginlib"
 )
+# pluginlib_export_plugin_description_file(hardware_interface exo_control_plugins.xml)
+install(DIRECTORY config launch
+DESTINATION share/${PROJECT_NAME}/)
 
 install(
   PROGRAMS
   ${PROJECT_NAME}/virtual_joy.py
+  ${PROJECT_NAME}/gait_generator.py
+  ${PROJECT_NAME}/balance_controller.py
   DESTINATION lib/${PROJECT_NAME}
 )
-
-install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

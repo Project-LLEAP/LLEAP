@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding='utf-8' ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Gazebo requires the use of plugins to interact with other systems such as ROS. -->
-
   <!-- This plugin will publish the joint_states for the selected joints
           (which robot_state_publisher can then use to broadcast the approprate tf). -->
   <!-- This will eventually be be replaced by the ros2 control plugin for gazebo-->

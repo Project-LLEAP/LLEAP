@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <ros2_control name="exo_hw" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <param name="control_period">0.005</param>  <!-- 200 Hz -->
+    </hardware>
+    <joint name="right_hip_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+    <joint name="right_knee_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+    <joint name="right_ankle_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+    <joint name="left_hip_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+    <joint name="left_knee_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+    <joint name="left_ankle_revolute_joint">
+      <command_interface name="velocity"/>
+      <state_interface   name="position"/>
+      <state_interface   name="velocity"/>
+    </joint>
+  </ros2_control>
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control"/>
+    <parameters>$(find exo_control)/config/lleap_exo_control.yaml</parameters>
+  </gazebo>
+</robot>

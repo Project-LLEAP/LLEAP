@@ -15,8 +15,6 @@ the control code.
 - `exo_moveit` runs the manipulation and motion planning software for how to get from one point to another in 3d space.
 - `exo_rviz` loads configuration files and runs the visualization software for the legs using rviz2 
 
-For more details see below.
-
 ## Dependencies
 You will need a working installation of [ROS2 Humble](https://docs.ros.org/en/humble/index.html), [Gazebo](http://gazebosim.org/), and 
 [moveit2](https://moveit.picknik.ai/humble/index.html)
@@ -29,16 +27,11 @@ to use these packages. They have been built and tested only on the following pla
 
 ### Python
 
-These packages use ROS2 and Python 3.10. In addition to the Python packages
-required for a ROS2 desktop-full installation you will need the following:
+These packages use Python 3.10. A virtual environment is recommended.
 
-For serial communication with USB connected hardware devices:
-
-- [`pyserial`](https://pypi.org/project/pyserial/)
-
-For the on-screen joystick:
-
-- [`pygame`](https://www.pygame.org/news)
+```bash
+pip install -r requirements.txt
+```
 
 ## Local Installation
 
@@ -65,10 +58,10 @@ To clone this project (essentially all of its packages), type the following into
 git clone https://github.com/MaxLewter16/LLEAP.git
 ```
 
-Back out of the `src` folder, install all dependencies, and build.
+Next install all dependencies, and build.
 
 ```bash
-cd ..
+cd ~/ros2_ws/
 rosdep install -i --from-path src --rosdistro humble -y
 colcon build
 ```
@@ -79,19 +72,6 @@ source install/setup.bash
 ```
 
 The packages should be ready and runnable.
-
-## Docker Development Installation
-Not recommended but needed for mac developers. First, create a ros2 ws and clone the project like above. 
-Use the [graphical docker interface](https://github.com/Tiryoh/docker-ros2-desktop-vnc) for visual development. 
-```bash
-docker run --name ros2_container -p 6080:80 --security-opt seccomp=unconfined -v [ABSOLUTE_PATH]:/home/ubuntu/ros2_ws --shm-size=512m tiryoh/ros2-desktop-vnc:humble
-```
-Browse http://127.0.0.1:6080/.
-
-You can access the container remotely using vscode with the docker extension and you can use git locally. To start the container again use:
-```bash
-docker start ros2_container
-```
 
 ## Usage - Simulation
 
@@ -121,6 +101,19 @@ ros2 launch exo_moveit demo.launch.py
 ```
 <img width="1552" alt="moveit" src="https://user-images.githubusercontent.com/35123887/231926854-d6bccb13-d69b-4d00-bb28-f94bbf0185bf.png">
 
+## Docker
+Not recommended but needed for mac developers. First, create a ros2 ws and clone the project like above. 
+Use the [graphical docker interface](https://github.com/Tiryoh/docker-ros2-desktop-vnc) for visual development. 
+```bash
+docker run --name ros2_container -p 6080:80 --security-opt seccomp=unconfined -v [ABSOLUTE_PATH]:/home/ubuntu/ros2_ws --shm-size=512m tiryoh/ros2-desktop-vnc:humble
+```
+Browse http://127.0.0.1:6080/.
+
+You can access the container remotely using vscode with the docker extension and you can use git locally. To start the container again use:
+```bash
+docker start ros2_container
+```
+
 ## License
 This software is licensed under the BSD-3-Clause license found in the LICENSE file in the root directory of this source tree.
 
@@ -128,4 +121,3 @@ This software is licensed under the BSD-3-Clause license found in the LICENSE fi
 We have found many tutorials made by [Automatic Addison](https://automaticaddison.com/) very helpful.
 
 We structured our project based on the [curio rover](https://github.com/srmainwaring/curio).
-

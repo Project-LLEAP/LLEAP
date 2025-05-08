@@ -1,45 +1,28 @@
-# puts nested info in the namespace 'lleap_exo'; see also the 'ns' attribute of 
-#   <rosparam> and <node>, as well as the 'args' attribute of the controller manager node
-lleap_exo:
-  # Publish all joint states -----------------------------------
-  joint_state_controller:
-    type: joint_state_controller/JointStateController
-    publish_rate: 50  
+---
+controller_manager:
+  ros__parameters:
+    update_rate: 250        # Hz
 
-  # Right Group Position Controller ---------------------------------------
-  right_joint_group_position_controller:
-    type: effort_controllers/JointGroupPositionController
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+      publish_rate: 50.0
+
+vel_controller:
+  ros__parameters:
+    type: joint_trajectory_controller/JointTrajectoryController
     joints:
       - right_hip_revolute_joint
       - right_knee_revolute_joint
-
-    # PID gains for each joint; have to write down here to get in correct namespace; need to load grp controller
-    right_hip_revolute_joint:
-      pid: {p: 900.0, i: 0.01, d: 100.0}
-    right_knee_revolute_joint:
-      pid: {p: 100.0, i: 0.01, d: 10.0}
-
-
-  # Left Group Position Controller ---------------------------------------
-  left_joint_group_position_controller:
-    type: effort_controllers/JointGroupPositionController
-    joints:
+      - right_ankle_revolute_joint
       - left_hip_revolute_joint
       - left_knee_revolute_joint
+      - left_ankle_revolute_joint
+    command_interfaces:
+      - velocity
+    state_interfaces:
+      - position
+      - velocity
 
-    # PID gains for each joint; have to write down here to get in correct namespace; need to load grp controller
-    left_hip_revolute_joint:
-      pid: {p: 900.0, i: 0.01, d: 100.0}
-    left_knee_revolute_joint:
-      pid: {p: 100.0, i: 0.01, d: 10.0}
-
-  
-  
-  # hip_revolute_joint_position_controller:
-  #  type: effort_controllers/JointPositionController
-  # joint: hip_revolute_joint
-  #  pid: {p: 900.0, i: 0.01, d: 100.0}
-  # knee_revolute_joint_position_controller:
-  #  type: effort_controllers/JointPositionController
-  #  joint: knee_revolute_joint
-  #  pid: {p: 100.0, i: 0.01, d: 10.0}
+    constraints:
+      goal_time: 0.2
+      stopped_velocity_tolerance: 0.1

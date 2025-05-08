@@ -11,6 +11,14 @@
 
   <depend>moveit_ros_planning_interface</depend>
   <depend>rclcpp</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>xacro</depend>
+  <depend>hardware_interface</depend>
+  <depend>pinocchio</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_srvs</depend>
   
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

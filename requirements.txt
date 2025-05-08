@@ -1,0 +1,9 @@
+numpy
+scipy
+pyserial
+pygame
+filterpy
+eigenpy
+pin
+urdfpy
+transforms3d
