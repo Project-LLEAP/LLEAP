@@ -84,13 +84,35 @@ ros2 launch exo_rviz display.launch.py
 <img width="1552" alt="rviz" src="https://user-images.githubusercontent.com/35123887/231926841-e22c5501-2011-4126-aabd-e4de87ed1d29.png">
 
 ### exo_gazebo
-Loads configuration files and runs the simulation software for the legs using gazebo classic and will eventually work in parallel with the 
+
+#### Gazebo Classic
+Loads configuration files and runs the simulation software for the legs using gazebo classic and will eventually work in parallel with the
 [control code](https://classic.gazebosim.org/tutorials?tut=ros_control).
 To view the legs in Gazebo classic run:
 ```bash
 ros2 launch exo_gazebo gazebo.launch.py
 ```
 <img width="1552" alt="Screen Shot 2023-04-16 at 12 47 10 AM" src="https://user-images.githubusercontent.com/35123887/232345292-4a579eb0-d3f4-4067-bbc3-fe6b7ccbae59.png">
+
+#### Gazebo Fortress (Ignition Gazebo)
+Alternatively, you can use Gazebo Fortress for simulation with full sensor support (IMU + joint states).
+
+**Installation:**
+```bash
+sudo apt install ros-humble-ros-gz-sim ros-humble-ros-gz-bridge
+```
+
+**Running on WSL2:**
+Gazebo Fortress requires a workaround for OpenGL rendering on WSL2. Use the provided helper script:
+```bash
+./exo_gazebo/launch_fortress.sh
+```
+
+**Note:** Press the play button (▶) in the bottom left of the Gazebo GUI to start the simulation.
+
+**Available sensors:**
+- `/exo/imu` - IMU data at 200 Hz (orientation, angular velocity, linear acceleration)
+- `/joint_states` - Joint positions and velocities at 200 Hz
 
 ### exo_moveit
 After following the source installation of moveit2 you should be able to run the motion planning in Rviz2.

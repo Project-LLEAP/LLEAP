@@ -9,3 +9,6 @@ logs/
 
 # PlatformIO files
 .pio/
+
+#claude
+CLAUDE.md

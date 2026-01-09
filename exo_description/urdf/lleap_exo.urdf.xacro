@@ -12,8 +12,10 @@
   <xacro:property name="robot_name" value="exo" />
 
   <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="use_gazebo_fortress" default="false"/>
 
   <xacro:property name="_fake" value="$(arg use_fake_hardware)" />
+  <xacro:property name="_fortress" value="$(arg use_gazebo_fortress)" />
   
   <!-- Grab the joint limits. -->
   <xacro:include filename="$(find exo_description)/urdf/lleap_exo_joint_limits.xacro" />
@@ -59,15 +61,24 @@
 
   <!-- torso: base for the model; attached to world in gazebo if whole model fixed -->
   <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0.5" rpy="0 0 0" />
+      <mass value="30" />
+      <inertia ixx="2.5625" ixy="0.0" ixz="0.0" iyy="2.6042" iyz="0.0" izz="0.1562" />
+    </inertial>
     <visual>
       <origin xyz="0 0 0.5" rpy="0 0 0" />
-      <!-- TODO: don't forget to add torso mass (and whole intertial element) here once have an estimate! -->
-      <mass value="30" />
       <geometry>
         <box size="0.25 ${torso_width} 1"/>
       </geometry>
       <material name="red"/>
     </visual>
+    <collision>
+      <origin xyz="0 0 0.5" rpy="0 0 0" />
+      <geometry>
+        <box size="0.25 ${torso_width} 1"/>
+      </geometry>
+    </collision>
   </link>
 
 
@@ -232,7 +243,16 @@
   <xacro:leg prefix="right" reflect="1" />
   <xacro:leg prefix="left" reflect="-1" />
 
-  <!-- <xacro:include filename="$(find exo_description)/urdf/lleap_exo_gazebo.xacro" /> -->
+  <!-- Include Gazebo plugins based on which simulator is being used -->
+  <xacro:if value="${_fortress}">
+    <!-- Gazebo Fortress/Ignition plugins -->
+    <xacro:include filename="$(find exo_description)/urdf/lleap_exo_gazebo_fortress.xacro" />
+  </xacro:if>
+
+  <xacro:unless value="${_fortress}">
+    <!-- Gazebo Classic plugins -->
+    <xacro:include filename="$(find exo_description)/urdf/lleap_exo_gazebo.xacro" />
+  </xacro:unless>
   <!-- Needed gazebo_ros_control plugin. 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
